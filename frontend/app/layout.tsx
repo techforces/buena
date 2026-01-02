@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./styles.css";
 
 export const metadata: Metadata = {
   title: "Buena Property Management Dashboard",
@@ -13,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-black">{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
