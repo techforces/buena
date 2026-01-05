@@ -12,6 +12,10 @@ export default function Home() {
   const [buildingModal, setBuildingModal] = useState(false);
   const [unitModal, setUnitModal] = useState(false);
 
+  const [activeProperty, setActiveProperty] = useState<null | string>(null);
+  const [activeBuilding, setActiveBuilding] = useState<null | string>(null);
+  const [activeUnit, setActiveUnit] = useState<null | string>(null);
+
   return (
     <div className="flex flex-col px-5 py-6 gap-6 h-screen text-night">
       <h1 className="text-[2rem]">Property Management Dashboard</h1>
@@ -20,6 +24,12 @@ export default function Home() {
         toggleProperty={setPropertyModal}
         toggleBuilding={setBuildingModal}
         toggleUnit={setUnitModal}
+        activeProperty={activeProperty}
+        activeBuilding={activeBuilding}
+        activeUnit={activeUnit}
+        setActiveProperty={setActiveProperty}
+        setActiveBuilding={setActiveBuilding}
+        setActiveUnit={setActiveUnit}
       />
       <AddProperty
         isOpen={propertyModal}
@@ -28,8 +38,13 @@ export default function Home() {
       <AddBuilding
         isOpen={buildingModal}
         handleClose={() => setBuildingModal(false)}
+        activeProperty={activeProperty}
       />
-      <AddUnit isOpen={unitModal} handleClose={() => setUnitModal(false)} />
+      <AddUnit
+        isOpen={unitModal}
+        handleClose={() => setUnitModal(false)}
+        activeBuilding={activeBuilding}
+      />
     </div>
   );
 }

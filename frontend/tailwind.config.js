@@ -8,6 +8,7 @@ module.exports = {
       colors: {
         blue: "#2A63F1",
         "blue-dark": "#134AD4",
+        "blue-light": "#EAF0FE",
         night: "#1C1917",
         grey: "#A6A09B",
         "pale-100": "#F9F9F9",
@@ -15,5 +16,6 @@ module.exports = {
       },
     },
   },
+  safelist: ["border-night"],
   plugins: [],
 };

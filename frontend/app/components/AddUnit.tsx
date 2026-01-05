@@ -7,13 +7,12 @@ import Modal from "./Modal";
 import Input from "./Input";
 
 interface AddUnitProps {
+  activeBuilding: null | string;
   isOpen?: boolean;
   handleClose?: () => void;
 }
 
-const AddUnit = ({ isOpen, handleClose }: AddUnitProps) => {
-  const [propertyName, setPropertyName] = useState("");
-
+const AddUnit = ({ activeBuilding, isOpen, handleClose }: AddUnitProps) => {
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
   const [floor, setFloor] = useState("");
@@ -23,12 +22,70 @@ const AddUnit = ({ isOpen, handleClose }: AddUnitProps) => {
   const [constructionYear, setConstructionYear] = useState("");
   const [rooms, setRooms] = useState("");
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    console.log(propertyName);
-    setPropertyName("");
+
+    if (
+      !number ||
+      !type ||
+      !floor ||
+      !entrance ||
+      !size ||
+      !share ||
+      !constructionYear ||
+      !rooms
+    ) {
+      alert(
+        "Please fill in number, type, floor, entrance, size, share, construction year, and rooms"
+      );
+      return;
+    }
+
+    const response = await fetch("http://localhost:4000/create-unit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        number: parseInt(number),
+        type,
+        floor: parseInt(floor),
+        entrance,
+        size: parseFloat(size),
+        share: parseFloat(share),
+        constructionYear: parseInt(constructionYear),
+        rooms: parseInt(rooms),
+        buildingId: activeBuilding,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error?.error || "Failed to create property");
+    }
+
+    console.log(response.json());
+
     handleClose?.();
   }
+
+  const TypeButton = (value: string) => {
+    return (
+      <button
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          e.preventDefault();
+          setType(value.toLocaleLowerCase());
+        }}
+        className={`w-full px-7 py-6 rounded-2xl text-lg capitalize border ${
+          type === value.toLocaleLowerCase()
+            ? "border-night"
+            : "border-pale-200"
+        }`}
+      >
+        {value}
+      </button>
+    );
+  };
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} title="Add new property">
@@ -38,26 +95,18 @@ const AddUnit = ({ isOpen, handleClose }: AddUnitProps) => {
             name="unit-number"
             label="Number"
             placeholder="Enter property name"
-            value={propertyName}
-            setter={setPropertyName}
+            value={number}
+            setter={setNumber}
           />
           <div className="flex flex-col gap-3">
             <span className="text-xl font-medium">Type</span>
             <div className="flex gap-3 w-full">
-              <button className="w-full px-7 py-6 border rounded-2xl border-pale-200 text-lg">
-                Apartment
-              </button>
-              <button className="w-full px-7 py-6 border rounded-2xl border-pale-200 text-lg">
-                Office
-              </button>
+              {TypeButton("Apartment")}
+              {TypeButton("Office")}
             </div>
             <div className="flex gap-3 w-full">
-              <button className="w-full px-7 py-6 border rounded-2xl border-pale-200 text-lg">
-                Garden
-              </button>
-              <button className="w-full px-7 py-6 border rounded-2xl border-pale-200 text-lg">
-                Parking
-              </button>
+              {TypeButton("Garden")}
+              {TypeButton("Parking")}
             </div>
           </div>
           <Input
@@ -74,7 +123,6 @@ const AddUnit = ({ isOpen, handleClose }: AddUnitProps) => {
             value={entrance}
             setter={setEntrance}
           />
-
           <Input
             name="size"
             label="Size"

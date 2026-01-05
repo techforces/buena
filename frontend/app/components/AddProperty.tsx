@@ -17,12 +17,41 @@ const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
   const [type, setType] = useState("");
   const [manager, setManager] = useState("");
   const [accountant, setAccountant] = useState("");
-  const [fileBinary, setFileBinary] = useState();
+  const [fileBinary, setFileBinary] = useState("");
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    console.log(name);
-    setName("");
+
+    if (!name || !type || !manager || !accountant) {
+      alert(
+        "Please fill in all required fields: name, type, manager and accountant"
+      );
+      return;
+    }
+
+    console.log(name, type, manager, accountant);
+
+    const response = await fetch("http://localhost:4000/create-property", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        type,
+        manager,
+        accountant,
+        // file: fileBinary as string,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error?.error || "Failed to create property");
+    }
+
+    console.log(response.json());
+
     handleClose?.();
   }
 

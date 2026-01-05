@@ -15,7 +15,8 @@ const Button = ({
     <button
       disabled={disabled}
       onClick={onClick}
-      className="bg-blue w-max text-white font-medium rounded-xl px-[1.125rem] h-10 hover:bg-blue-dark duration-200 text-base"
+      className="w-max text-white font-medium rounded-xl px-[1.125rem] h-10  duration-200 text-base 
+        disabled:bg-gray-500 bg-blue hover:bg-blue-dark"
     >
       {label}
     </button>

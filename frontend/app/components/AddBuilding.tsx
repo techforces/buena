@@ -7,19 +7,48 @@ import Modal from "./Modal";
 import Input from "./Input";
 
 interface AddBuildingProps {
+  activeProperty: null | string;
   isOpen?: boolean;
   handleClose?: () => void;
 }
 
-const AddBuilding = ({ isOpen, handleClose }: AddBuildingProps) => {
+const AddBuilding = ({
+  activeProperty,
+  isOpen,
+  handleClose,
+}: AddBuildingProps) => {
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
   const [otherDetails, setOtherDetails] = useState("");
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    console.log(street);
-    setStreet("");
+
+    if (!street || !houseNumber || !otherDetails) {
+      alert("Please fill in all required fields: street and house number");
+      return;
+    }
+
+    const response = await fetch("http://localhost:4000/create-building", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        street,
+        houseNumber,
+        otherDetails,
+        propertyId: activeProperty,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error?.error || "Failed to create building");
+    }
+
+    console.log(response.json());
+
     handleClose?.();
   }
 

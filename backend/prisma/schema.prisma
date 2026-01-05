@@ -19,21 +19,21 @@ model Property {
   accountant String
 
   // property.fileId - file.id  (modeled as 1:1)
-  fileId     String     @unique
-  file       File       @relation(fields: [fileId], references: [id])
+  // fileId     String     @unique
+  // file       File       @relation(fields: [fileId], references: [id])
 
   // property.id < building.propertyId (1:N)
   buildings  Building[]
 }
 
-model File {
-  id       String    @id @default(cuid())
-  name     String
-  data     String
+// model File {
+//   id       String    @id @default(cuid())
+//   name     String
+//   data     String
 
-  // back relation for 1:1 with Property
-  property Property?
-}
+//   // back relation for 1:1 with Property
+//   property Property?
+// }
 
 model Building {
   id           String   @id @default(cuid())
