@@ -6,6 +6,12 @@ import Dashboard from "./components/Dashboard";
 import AddProperty from "./components/AddProperty";
 import AddBuilding from "./components/AddBuilding";
 import AddUnit from "./components/AddUnit";
+import View from "./components/View";
+
+export type ViewItemType = {
+  type: "property" | "building" | "unit" | null;
+  id: string | null;
+};
 
 export default function Home() {
   const [propertyModal, setPropertyModal] = useState(false);
@@ -15,6 +21,11 @@ export default function Home() {
   const [activeProperty, setActiveProperty] = useState<null | string>(null);
   const [activeBuilding, setActiveBuilding] = useState<null | string>(null);
   const [activeUnit, setActiveUnit] = useState<null | string>(null);
+
+  const [viewItem, setViewItem] = useState<ViewItemType>({
+    type: null,
+    id: null,
+  });
 
   return (
     <div className="flex flex-col px-5 py-6 gap-6 h-screen text-night">
@@ -30,6 +41,7 @@ export default function Home() {
         setActiveProperty={setActiveProperty}
         setActiveBuilding={setActiveBuilding}
         setActiveUnit={setActiveUnit}
+        setViewItem={setViewItem}
       />
       <AddProperty
         isOpen={propertyModal}
@@ -45,6 +57,7 @@ export default function Home() {
         handleClose={() => setUnitModal(false)}
         activeBuilding={activeBuilding}
       />
+      <View type={viewItem.type} id={viewItem.id} setViewItem={setViewItem} />
     </div>
   );
 }

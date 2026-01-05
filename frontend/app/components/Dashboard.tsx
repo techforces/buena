@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Button from "./Button";
+import type { ViewItemType } from "../page";
 
 interface DashboardProps {
   toggleProperty: (value: boolean) => void;
@@ -15,9 +16,11 @@ interface DashboardProps {
   setActiveProperty: (value: null | string) => void;
   setActiveBuilding: (value: null | string) => void;
   setActiveUnit: (value: null | string) => void;
+
+  setViewItem: (value: ViewItemType) => void;
 }
 
-type Property = {
+export type Property = {
   id: string;
   name: string;
   type: "WEG" | "MV";
@@ -25,14 +28,15 @@ type Property = {
   accountant: string;
 };
 
-type Building = {
+export type Building = {
   id: string;
   street: string;
   houseNumber: string;
+  otherDetails: string;
   propertyId: string;
 };
 
-type Unit = {
+export type Unit = {
   id: string;
   number: number;
   type: string;
@@ -53,9 +57,12 @@ const Dashboard = ({
   activeProperty,
   activeBuilding,
   activeUnit,
+
   setActiveProperty,
   setActiveBuilding,
   setActiveUnit,
+
+  setViewItem,
 }: DashboardProps) => {
   const [propertiesData, setPropertiesData] = useState<Property[]>([]);
   const [buildingsData, setBuildingsData] = useState<Building[]>([]);
@@ -66,7 +73,10 @@ const Dashboard = ({
     "w-full h-max flex justify-between items-center p-6 bg-pale-100 border-b border-pale-200";
 
   const itemClasses =
-    "flex items-center p-6 gap-1 text-lg duration-100 cursor-pointer";
+    "flex items-center p-6 gap-1 text-lg duration-100 cursor-pointer w-full";
+
+  const viewButtonClasses =
+    "absolute right-6 top-1/2 -translate-y-1/2 box-border px-3 py-[0.375rem] border border-grey-600 rounded-lg bg-white hover:bg-pale-100";
 
   async function fetchData(type: "properties" | "buildings" | "units") {
     const response = (await fetch(`http://localhost:4000/${type}`, {
@@ -128,27 +138,37 @@ const Dashboard = ({
         <div className="flex flex-col">
           {propertiesData.map((property) => {
             return (
-              <button
-                onClick={() => {
-                  setActiveProperty(property.id);
-                  setActiveBuilding(null);
-                  setActiveUnit(null);
-                }}
-                key={property.id}
-                className={
-                  itemClasses +
-                  ` ${
-                    activeProperty === property.id
-                      ? "bg-blue-light"
-                      : "hover:bg-pale-100"
-                  }`
-                }
-              >
-                <span className="w-[3.75rem] text-grey text-left">
-                  {property.type}
-                </span>
-                <span>{property.name}</span>
-              </button>
+              <div key={property.id} className="relative w-full">
+                <button
+                  onClick={() => {
+                    setActiveProperty(property.id);
+                    setActiveBuilding(null);
+                    setActiveUnit(null);
+                  }}
+                  className={
+                    itemClasses +
+                    ` ${
+                      activeProperty === property.id
+                        ? "bg-blue-light"
+                        : "hover:bg-pale-100"
+                    }`
+                  }
+                >
+                  <span className="w-[3.75rem] text-grey text-left">
+                    {property.type}
+                  </span>
+                  <span>{property.name}</span>
+                </button>
+                <button
+                  className={viewButtonClasses}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.preventDefault();
+                    setViewItem({ type: "property", id: property.id });
+                  }}
+                >
+                  View
+                </button>
+              </div>
             );
           })}
         </div>
@@ -168,23 +188,33 @@ const Dashboard = ({
             .filter((building) => building.propertyId === activeProperty)
             .map((building) => {
               return (
-                <button
-                  onClick={() => {
-                    setActiveBuilding(building.id);
-                    setActiveUnit(null);
-                  }}
-                  key={building.id}
-                  className={
-                    itemClasses +
-                    ` ${
-                      activeBuilding === building.id
-                        ? "bg-blue-light"
-                        : "hover:bg-pale-100"
-                    }`
-                  }
-                >
-                  <span>{building.street + " " + building.houseNumber}</span>
-                </button>
+                <div key={building.id} className="relative w-full">
+                  <button
+                    onClick={() => {
+                      setActiveBuilding(building.id);
+                      setActiveUnit(null);
+                    }}
+                    className={
+                      itemClasses +
+                      ` ${
+                        activeBuilding === building.id
+                          ? "bg-blue-light"
+                          : "hover:bg-pale-100"
+                      }`
+                    }
+                  >
+                    <span>{building.street + " " + building.houseNumber}</span>
+                  </button>
+                  <button
+                    className={viewButtonClasses}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.preventDefault();
+                      setViewItem({ type: "building", id: building.id });
+                    }}
+                  >
+                    View
+                  </button>
+                </div>
               );
             })}
         </div>
@@ -204,25 +234,35 @@ const Dashboard = ({
             .filter((unit) => unit.buildingId === activeBuilding)
             .map((unit) => {
               return (
-                <button
-                  onClick={() => {
-                    setActiveUnit(unit.id);
-                  }}
-                  key={unit.id}
-                  className={
-                    itemClasses +
-                    ` ${
-                      activeUnit === unit.id
-                        ? "bg-blue-light"
-                        : "hover:bg-pale-100"
-                    }`
-                  }
-                >
-                  <span className="w-[6.25rem] capitalize text-grey text-left">
-                    {unit.type}
-                  </span>
-                  <span>{unit.number}</span>
-                </button>
+                <div key={unit.id} className="relative w-full">
+                  <button
+                    onClick={() => {
+                      setActiveUnit(unit.id);
+                    }}
+                    className={
+                      itemClasses +
+                      ` ${
+                        activeUnit === unit.id
+                          ? "bg-blue-light"
+                          : "hover:bg-pale-100"
+                      }`
+                    }
+                  >
+                    <span className="w-[6.25rem] capitalize text-grey text-left">
+                      {unit.type}
+                    </span>
+                    <span>{unit.number}</span>
+                  </button>
+                  <button
+                    className={viewButtonClasses}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.preventDefault();
+                      setViewItem({ type: "unit", id: unit.id });
+                    }}
+                  >
+                    View
+                  </button>
+                </div>
               );
             })}
         </div>

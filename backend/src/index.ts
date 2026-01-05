@@ -83,6 +83,29 @@ app.get("/properties", async (req, res) => {
   }
 });
 
+app.get("/properties/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Property id is required" });
+    }
+
+    const property = await prisma.property.findUnique({
+      where: { id },
+    });
+
+    if (!property) {
+      return res.status(404).json({ error: "Property not found" });
+    }
+
+    return res.status(200).json(property);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch property" });
+  }
+});
+
 app.post("/create-building", async (req, res) => {
   try {
     const { street, houseNumber, otherDetails, propertyId } = req.body;
@@ -121,6 +144,29 @@ app.get("/buildings", async (req, res) => {
     res.status(500).json({
       error: "Failed to fetch buildings",
     });
+  }
+});
+
+app.get("/buildings/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Building id is required" });
+    }
+
+    const building = await prisma.building.findUnique({
+      where: { id },
+    });
+
+    if (!building) {
+      return res.status(404).json({ error: "Building not found" });
+    }
+
+    return res.status(200).json(building);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch building" });
   }
 });
 
@@ -185,7 +231,30 @@ app.get("/units", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: "Failed to fetch buildings",
+      error: "Failed to fetch units",
     });
+  }
+});
+
+app.get("/units/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Unit id is required" });
+    }
+
+    const unit = await prisma.unit.findUnique({
+      where: { id },
+    });
+
+    if (!unit) {
+      return res.status(404).json({ error: "Unit not found" });
+    }
+
+    return res.status(200).json(unit);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch unit" });
   }
 });
