@@ -18,6 +18,7 @@ interface DashboardProps {
   setActiveUnit: (value: null | string) => void;
 
   setViewItem: (value: ViewItemType) => void;
+  refreshKey: number;
 }
 
 export type Property = {
@@ -64,6 +65,7 @@ const Dashboard = ({
   setActiveUnit,
 
   setViewItem,
+  refreshKey,
 }: DashboardProps) => {
   const [propertiesData, setPropertiesData] = useState<Property[]>([]);
   const [buildingsData, setBuildingsData] = useState<Building[]>([]);
@@ -123,7 +125,7 @@ const Dashboard = ({
         console.error(err);
       }
     })();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="flex rounded-3xl border border-grey-200 flex-auto">

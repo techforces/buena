@@ -10,12 +10,14 @@ interface AddBuildingProps {
   activeProperty: null | string;
   isOpen?: boolean;
   handleClose?: () => void;
+  onCreated: () => void;
 }
 
 const AddBuilding = ({
   activeProperty,
   isOpen,
   handleClose,
+  onCreated,
 }: AddBuildingProps) => {
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
@@ -48,6 +50,12 @@ const AddBuilding = ({
     }
 
     console.log(response.json());
+
+    setStreet("");
+    setHouseNumber("");
+    setOtherDetails("");
+
+    onCreated();
 
     handleClose?.();
   }

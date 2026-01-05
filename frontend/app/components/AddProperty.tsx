@@ -10,9 +10,10 @@ import FileUpload from "./FileUpload";
 interface AddPropertyProps {
   isOpen?: boolean;
   handleClose?: () => void;
+  onCreated: () => void;
 }
 
-const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
+const AddProperty = ({ isOpen, handleClose, onCreated }: AddPropertyProps) => {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [manager, setManager] = useState("");
@@ -65,6 +66,8 @@ const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
       setManager("");
       setAccountant("");
       setFile(null);
+
+      onCreated();
 
       handleClose?.();
     } catch (err) {

@@ -22,6 +22,8 @@ export default function Home() {
   const [activeBuilding, setActiveBuilding] = useState<null | string>(null);
   const [activeUnit, setActiveUnit] = useState<null | string>(null);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const [viewItem, setViewItem] = useState<ViewItemType>({
     type: null,
     id: null,
@@ -42,20 +44,24 @@ export default function Home() {
         setActiveBuilding={setActiveBuilding}
         setActiveUnit={setActiveUnit}
         setViewItem={setViewItem}
+        refreshKey={refreshKey}
       />
       <AddProperty
         isOpen={propertyModal}
         handleClose={() => setPropertyModal(false)}
+        onCreated={() => setRefreshKey((k: number) => k + 1)}
       />
       <AddBuilding
         isOpen={buildingModal}
         handleClose={() => setBuildingModal(false)}
         activeProperty={activeProperty}
+        onCreated={() => setRefreshKey((k: number) => k + 1)}
       />
       <AddUnit
         isOpen={unitModal}
         handleClose={() => setUnitModal(false)}
         activeBuilding={activeBuilding}
+        onCreated={() => setRefreshKey((k: number) => k + 1)}
       />
       <View type={viewItem.type} id={viewItem.id} setViewItem={setViewItem} />
     </div>

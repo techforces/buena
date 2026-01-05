@@ -10,9 +10,15 @@ interface AddUnitProps {
   activeBuilding: null | string;
   isOpen?: boolean;
   handleClose?: () => void;
+  onCreated: () => void;
 }
 
-const AddUnit = ({ activeBuilding, isOpen, handleClose }: AddUnitProps) => {
+const AddUnit = ({
+  activeBuilding,
+  isOpen,
+  handleClose,
+  onCreated,
+}: AddUnitProps) => {
   const [number, setNumber] = useState("");
   const [type, setType] = useState("");
   const [floor, setFloor] = useState("");
@@ -64,7 +70,16 @@ const AddUnit = ({ activeBuilding, isOpen, handleClose }: AddUnitProps) => {
       throw new Error(error?.error || "Failed to create property");
     }
 
-    console.log(response.json());
+    setNumber("");
+    setType("");
+    setFloor("");
+    setEntrance("");
+    setSize("");
+    setShare("");
+    setConstructionYear("");
+    setRooms("");
+
+    onCreated();
 
     handleClose?.();
   }
