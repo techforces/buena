@@ -1,8 +1,24 @@
+import { useState } from "react";
+
 interface FileUploadProps {
   label?: string;
+  onFileSelect: (file: File | null) => void;
 }
 
-const FileUpload = ({ label = "Upload label" }: FileUploadProps) => {
+const FileUpload = ({
+  label = "Upload label",
+  onFileSelect,
+}: FileUploadProps) => {
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file ? file.name : null);
+      onFileSelect(file);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full gap-3">
       <p className="font-medium text-xl">{label}</p>
@@ -40,9 +56,16 @@ const FileUpload = ({ label = "Upload label" }: FileUploadProps) => {
               strokeLinejoin="round"
             />
           </svg>
-          <p className="text-lg text-grey">Upload a PDF file</p>
+          <p className={`text-lg ${fileName ? "text-night" : "text-grey"}`}>
+            {fileName ? fileName : "Upload a PDF file"}
+          </p>
         </div>
-        <input id="dropzone-file" type="file" className="hidden" />
+        <input
+          id="dropzone-file"
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </label>
     </div>
   );

@@ -17,7 +17,8 @@ const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
   const [type, setType] = useState("");
   const [manager, setManager] = useState("");
   const [accountant, setAccountant] = useState("");
-  const [fileBinary, setFileBinary] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -29,30 +30,49 @@ const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
       return;
     }
 
-    console.log(name, type, manager, accountant);
-
-    const response = await fetch("http://localhost:4000/create-property", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        type,
-        manager,
-        accountant,
-        // file: fileBinary as string,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error?.error || "Failed to create property");
+    if (!file) {
+      alert("Please upload the declaration PDF");
+      return;
     }
 
-    console.log(response.json());
+    if (file?.type !== "application/pdf") {
+      alert("Only PDF files are allowed.");
+      return;
+    }
 
-    handleClose?.();
+    try {
+      setIsSubmitting(true);
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("type", type);
+      formData.append("manager", manager);
+      formData.append("accountant", accountant);
+      formData.append("file", file);
+
+      const response = await fetch("http://localhost:4000/create-property", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.error || "Failed to create property");
+      }
+
+      setName("");
+      setType("");
+      setManager("");
+      setAccountant("");
+      setFile(null);
+
+      handleClose?.();
+    } catch (err) {
+      console.log(err);
+      alert(err instanceof Error ? err.message : "Failed to create property");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -97,11 +117,15 @@ const AddProperty = ({ isOpen, handleClose }: AddPropertyProps) => {
             value={accountant}
             setter={setAccountant}
           />
-          <FileUpload label="Declaration of division (Teilungserklärung)" />
+          <FileUpload
+            label="Declaration of division (Teilungserklärung)"
+            onFileSelect={setFile}
+          />
         </div>
 
         <Button
-          label="Add property"
+          disabled={isSubmitting}
+          label={isSubmitting ? "Adding..." : "Add property"}
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSubmit(e)}
         />
       </form>

@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
+
 import prisma from "./prisma";
+import upload from "./multer";
 import { error } from "node:console";
 
 const app = express();
@@ -26,7 +28,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.post("/create-property", async (req, res) => {
+app.post("/create-property", upload.single("file"), async (req, res) => {
   try {
     const {
       name,
@@ -35,7 +37,11 @@ app.post("/create-property", async (req, res) => {
       accountant,
     } = req.body;
 
-    console.log(name, type, manager, accountant);
+    if (!req.file) {
+      return res.status(400).json({ error: "File is required" });
+    }
+
+    const bytes = new Uint8Array(req.file.buffer);
 
     if (!name || !type || !manager || !accountant) {
       return res.status(400).json({
@@ -49,16 +55,16 @@ app.post("/create-property", async (req, res) => {
         type,
         manager,
         accountant,
-        // file: {
-        //   create: {
-        //     name: fileName,
-        //     data: fileData,
-        //   },
-        // },
+        file: {
+          create: {
+            name: req.file.originalname,
+            data: bytes,
+          },
+        },
       },
-      //   include: {
-      //     file: true,
-      //   },
+      include: {
+        file: true,
+      },
     });
 
     res.status(201).json(property);
@@ -93,6 +99,7 @@ app.get("/properties/:id", async (req, res) => {
 
     const property = await prisma.property.findUnique({
       where: { id },
+      include: { file: true },
     });
 
     if (!property) {
@@ -103,6 +110,34 @@ app.get("/properties/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Failed to fetch property" });
+  }
+});
+
+app.get("/properties/:id/file", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const property = await prisma.property.findUnique({
+      where: { id },
+      include: { file: true },
+    });
+
+    if (!property || !property.file) {
+      return res
+        .status(404)
+        .json({ error: "File not found for this property" });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${property.file.name}"`
+    );
+
+    return res.send(Buffer.from(property.file.data));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to download file" });
   }
 });
 

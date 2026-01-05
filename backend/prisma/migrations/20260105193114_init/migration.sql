@@ -8,8 +8,18 @@ CREATE TABLE "Property" (
     "type" "PropertyType" NOT NULL,
     "manager" TEXT NOT NULL,
     "accountant" TEXT NOT NULL,
+    "fileId" TEXT NOT NULL,
 
     CONSTRAINT "Property_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "File" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "data" BYTEA NOT NULL,
+
+    CONSTRAINT "File_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -40,7 +50,13 @@ CREATE TABLE "Unit" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Property_fileId_key" ON "Property"("fileId");
+
+-- CreateIndex
 CREATE INDEX "Unit_buildingId_idx" ON "Unit"("buildingId");
+
+-- AddForeignKey
+ALTER TABLE "Property" ADD CONSTRAINT "Property_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "File"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Building" ADD CONSTRAINT "Building_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "Property"("id") ON DELETE CASCADE ON UPDATE CASCADE;

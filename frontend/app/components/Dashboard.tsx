@@ -26,6 +26,7 @@ export type Property = {
   type: "WEG" | "MV";
   manager: string;
   accountant: string;
+  file: { name: string };
 };
 
 export type Building = {

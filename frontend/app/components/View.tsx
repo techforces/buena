@@ -42,6 +42,36 @@ const View = ({ type, id, setViewItem }: ViewProps) => {
     }
   }
 
+  async function handleDownloadPropertyFile(propertyId: string) {
+    const res = await fetch(
+      `http://localhost:4000/properties/${propertyId}/file`,
+      {
+        method: "GET",
+      }
+    );
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Failed to download file");
+    }
+
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="(.+)"/);
+    const filename = match?.[1] ?? "document.pdf";
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  }
+
   useEffect(() => {
     (async () => {
       try {
@@ -93,7 +123,54 @@ const View = ({ type, id, setViewItem }: ViewProps) => {
               <p className={labelClasses}>
                 Declaration of division (Teilungserklärung)
               </p>
-              {/* <p className="text-lg">{property.}</p> */}
+              <p className="text-lg">{property.file?.name ?? "—"}</p>
+              <button className="flex gap-3 items-center w-max">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4.75 14.75V16.25C4.75 17.9069 6.09315 19.25 7.75 19.25H16.25C17.9069 19.25 19.25 17.9069 19.25 16.25V14.75"
+                    stroke="black"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 14.25V4.75"
+                    stroke="black"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8.75 10.75L12 14.25L15.25 10.75"
+                    stroke="black"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+
+                <span
+                  className="text-lg underline"
+                  onClick={async () => {
+                    try {
+                      await handleDownloadPropertyFile(property.id);
+                    } catch (err) {
+                      console.error(err);
+                      alert(
+                        err instanceof Error ? err.message : "Download failed"
+                      );
+                    }
+                  }}
+                >
+                  Download
+                </span>
+              </button>
             </div>
           </div>
         );
